@@ -9,15 +9,19 @@ function AdminPropertyPage() {
   const [posts, setPosts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [postsPerPage] = useState(10);
-
+  
+  
   //HOOKS ------->
   useEffect(() => {
-    const fetchPosts = async () => {
-      const res = await axios.get("https://jsonplaceholder.typicode.com/posts");
-      setPosts(res.data);
-    };
-    fetchPosts();
+    // const fetchPosts = async () => {
+    //   const res = await axios.get("http://localhost:4000/api/v1/property/");
+    //   setPosts(res.data);
+    // };
+    // fetchPosts();
   }, []);
+  
+  
+ 
 
   //DISPLAYING CURRRENT POSTS----->
 
@@ -58,15 +62,16 @@ function AdminPropertyPage() {
                 <td> {post.id}</td>
                 <td>{post.title}</td>
                 <td>
-                  <button className="setbutton1">Update</button>
+                  <button className="setbutton1" >Update</button>
                 </td>
                 <td>
-                  <button className="setbutton1">Delete</button>
+                  <button className="setbutton1" >Delete</button>
                 </td>
               </tr>
             ))}
           </tbody>
         </Table>
+
 
         <Pagination className="page">
           {pageNumbers.map((number) => {
