@@ -46,7 +46,7 @@ function BuyerPage() {
     }
   };
   //<------>
-//default image---->
+  //default image---->
   const defaultImage =
     "https://images.unsplash.com/photo-1453728013993-6d66e9c9123a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8dmlld3xlbnwwfHwwfHw%3D&w=1000&q=80";
 
@@ -123,12 +123,6 @@ function BuyerPage() {
                         <option value="Other">Other</option>
                       </Form.Select>
                     </Col>
-                    <Col md>
-                      <Form.Label htmlFor=""></Form.Label>
-                      <Form.Select id="Select">
-                        <option>Select City</option>
-                      </Form.Select>
-                    </Col>
                   </Row>
                 </Form.Group>
               </Form>
@@ -137,26 +131,31 @@ function BuyerPage() {
         </div>
         <div className="card">
           <Row className="g-4">
-            {currentPosts.map((post, index) => (//mapping---->
-              <Col md={6}>
-                <Card key={index}>
-                  <Card.Img
-                    variant="top"
-                    src={post.coverImage || defaultImage}
-                  />
-                  <Card.ImgOverlay className="img-overlay">
-                    <Button
-                      onClick={() => {
-                        handleClick(post._id);
-                      }}
-                      className="img-button"
-                    >
-                      {post.name}
-                    </Button>
-                  </Card.ImgOverlay>
-                </Card>
-              </Col>
-            ))}
+            {currentPosts.map(
+              (
+                post,
+                index //mapping---->
+              ) => (
+                <Col md={6}>
+                  <Card key={index}>
+                    <Card.Img
+                      variant="top"
+                      src={post.coverImage || defaultImage}
+                    />
+                    <Card.ImgOverlay className="img-overlay">
+                      <Button
+                        onClick={() => {
+                          handleClick(post._id);
+                        }}
+                        className="img-button"
+                      >
+                        {post.name}
+                      </Button>
+                    </Card.ImgOverlay>
+                  </Card>
+                </Col>
+              )
+            )}
           </Row>
         </div>
         <Pagination className="page">
