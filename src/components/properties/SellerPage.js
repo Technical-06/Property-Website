@@ -9,6 +9,7 @@ import Menu from "../Menu";
 import Footer from "../Footer";
 
 function SellerPage() {
+  
   const initialValues = {
     name: "",
     address_line_one: "",

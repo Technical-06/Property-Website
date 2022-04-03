@@ -9,16 +9,20 @@
   flex-direction: column;
   margin: auto;
   gap: 1rem;
+  
+  
 }
 
 .Img {
   width: 20rem;
+  
 }
 
 .img-overlay {
   display: flex;
   justify-content: center;
   align-items: center;
+  
 }
 
 .img-button {
@@ -37,6 +41,7 @@
 
 .Img {
   width: 34rem;
+ 
 }
 .page {
   justify-content: center;

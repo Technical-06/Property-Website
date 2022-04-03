@@ -1,8 +1,6 @@
-//IMPORTS----->
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Menu from "../Menu";
-import apiService from '../../services/apiService';
 import {
   Pagination,
   Card,
@@ -15,75 +13,79 @@ import {
 import "bootstrap/dist/css/bootstrap.min.css";
 import Footer from "../Footer";
 import "../../css/Buyerpage.css";
-import { useParams } from "react-router-dom";
-import Carousel from "react-bootstrap/Carousel";
-
+import apiService from "../../services/apiService";
+import { Navigate, useNavigate } from "react-router-dom";
 
 //MAIN FUNCTION----->
 function BuyerPage() {
   const [posts, setPosts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [postsPerPage] = useState(500);
-  const { image} = useParams();
+  const [filteredPosts, setFilter] = useState([]);
+  const [postsPerPage] = useState(10);
 
-  const [property, setProperty] = useState({});
-  const [images, setImages] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const [flatType, setFlatType] = useState();
+
+  // For filteration between flats<------->
+  const onChangeFlatType = async (e) => {
+    setFlatType(e.target.value);
+    getPropertiesByFlatType(e.target.value);
+  };
+  const getPropertiesByFlatType = async (value) => {
+    if (value) {
+      try {
+        const filtertedProporties = posts.filter((x) => x.type.includes(value));
+        if (filtertedProporties.length > 0) {
+          setFilter(filtertedProporties);
+        } else {
+          setFilter(posts);
+        }
+      } catch (err) {
+        console.log(err.message);
+      }
+    }
+  };
+  //<------>
+//default image---->
+  const defaultImage =
+    "https://images.unsplash.com/photo-1453728013993-6d66e9c9123a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8dmlld3xlbnwwfHwwfHw%3D&w=1000&q=80";
 
   //HOOKS ------->
   useEffect(() => {
-  //   const fetchPosts = async () => {
-  //     const res = await axios.get(
-  //       "https://jsonplaceholder.typicode.com/photos"
-  //     );
-  //     setPosts(res.data);
-  //   };
-
-  //   fetchPosts();
-  // }, []);
-
-
-  async function getProperties() {
-    try {
-      const data = await apiService.getProperties(posts);
-        const images = await apiService.getImages(
-          data.Property.images,
-          "imageUrl"
-      );
-      setImages(images);
-      setProperty(data.Property);
-    } catch (err) {
-      console.log(err);
+    async function fetchPosts() {
+      try {
+        const datas = await apiService.getProperties();
+        console.log(datas);
+        if (datas.Properties.length > 0) {
+          const imageItems = await Promise.all(
+            datas.Properties.map(async (data) => {
+              const image = await apiService.getImages(
+                [data.images[0]],
+                "imageUrl"
+              );
+              data.coverImage = image;
+              return data;
+            })
+          );
+          setPosts(imageItems);
+          setFilter(imageItems);
+        }
+      } catch (err) {
+        console.log(err);
+      }
     }
-    setLoading(false);
-  }
-    getProperties();
-  },[]);
+    fetchPosts();
+  }, []);
 
-  const buildImages = () => {
-    let imageItems =
-      images.length > 0 &&
-      images.map((imageUrl) => {
-        return (
-          <Carousel.Item>
-            <img className="d-block w-100" src={imageUrl} alt="First slide" />
-            <Carousel.Caption>
-              <h3>{property.name}</h3>
-            </Carousel.Caption>
-          </Carousel.Item>
-        );
-      });
-
-    return imageItems;
+  const handleClick = (id) => {
+    navigate(`/propertyviewpage/${id}`);
   };
-  
-
 
   //DISPLAYING CURRRENT POSTS----->
 
   const LastPostIndex = currentPage * postsPerPage;
   const FirstPostIndex = LastPostIndex - postsPerPage;
-  const currentPosts = posts.slice(FirstPostIndex, LastPostIndex);
+  const currentPosts = filteredPosts.slice(FirstPostIndex, LastPostIndex);
 
   //PAGINATION CODE------>
   const pageNumbers = [];
@@ -92,25 +94,27 @@ function BuyerPage() {
   }
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
-  if (loading) {
-    return <p>...loading</p>;
-  } else {
 
   return (
+    //jsx code----->
     <>
       <Menu />
       <Container className="display-flex">
         <h3 className="text-center">All Properties</h3>
         <div>
           <Row>
-            <div classname="form">
+            <div className="form">
               <Form>
                 <Form.Group className="mb-5 mx-5" controlId="SelectDropdown">
                   <Row className="mt-2 ">
                     <Col md>
                       <Form.Label htmlFor=""></Form.Label>
-                      <Form.Select id="Select">
-                        <option >Select Flat Type</option>
+                      <Form.Select
+                        id="Select"
+                        value={flatType}
+                        onChange={onChangeFlatType}
+                      >
+                        <option>All Proporties</option>
                         <option value="1 BHK">1 BHK</option>
                         <option value="2 BHK">2 BHK</option>
                         <option value="3 BHK">3 BHK</option>
@@ -130,26 +134,30 @@ function BuyerPage() {
               </Form>
             </div>
           </Row>
-          {/* </Container> */}
         </div>
-        <div classname="card">
-          {images ? (
-            buildImages()
-          ):(
+        <div className="card">
           <Row className="g-4">
-            {currentPosts.map((post) => (
-              <Col md={6} key={post.id}>
-                <Card>
-                  <Card.Img variant="top" src={post.url} />
-
+            {currentPosts.map((post, index) => (//mapping---->
+              <Col md={6}>
+                <Card key={index}>
+                  <Card.Img
+                    variant="top"
+                    src={post.coverImage || defaultImage}
+                  />
                   <Card.ImgOverlay className="img-overlay">
-                    <Button className="img-button">Palazo</Button>
+                    <Button
+                      onClick={() => {
+                        handleClick(post._id);
+                      }}
+                      className="img-button"
+                    >
+                      {post.name}
+                    </Button>
                   </Card.ImgOverlay>
                 </Card>
               </Col>
             ))}
           </Row>
-          )}
         </div>
         <Pagination className="page">
           {pageNumbers.map((number) => {
@@ -164,7 +172,6 @@ function BuyerPage() {
       <Footer />
     </>
   );
+}
 
-}
-}
 export default BuyerPage;
